@@ -1,0 +1,97 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1">My reports</h1>
+    <p class="text-muted mb-0">Everything you have reported, with its live status.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-danger" routerLink="/report-lost"><i class="bi bi-exclamation-circle me-1"></i>Report lost</a>
+    <a class="btn btn-outline-success" routerLink="/report-found"><i class="bi bi-hand-thumbs-up me-1"></i>Report found</a>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label" for="mr-type">Type</label>
+        <select id="mr-type" class="form-select" [ngModel]="typeFilter()" (ngModelChange)="changeType($event)">
+          <option value="">All my reports</option>
+          <option value="lost">Lost items</option>
+          <option value="found">Found items</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="mr-status">Status</label>
+        <select id="mr-status" class="form-select" [ngModel]="statusFilter()" (ngModelChange)="changeStatus($event)">
+          <option value="">Any status</option>
+          <option value="active">Active</option>
+          <option value="matched">Matched</option>
+          <option value="claimed">Claimed</option>
+          <option value="returned">Returned</option>
+          <option value="closed">Closed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        @if (hasFilters()) {
+          <button class="btn btn-outline-secondary w-100" type="button" (click)="clearFilters()">
+            <i class="bi bi-x-circle me-1"></i>Clear filters
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (state() === 'loading') {
+  <app-loading-spinner label="Loading your reports…" />
+} @else if (state() === 'error') {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (isEmpty()) {
+  <div class="card"><div class="card-body">
+    <app-empty-state icon="bi-journal-text"
+      [title]="hasFilters() ? 'No reports with these filters' : 'You have not reported anything yet'"
+      [message]="hasFilters()
+        ? 'Try clearing the filters to see all of your reports.'
+        : 'Report a lost item or hand in something you found — the algorithm starts comparing it immediately.'"
+      actionLabel="Report a lost item" actionLink="/report-lost" />
+  </div></div>
+} @else {
+  @if (result(); as page) {
+    <p class="text-muted small">{{ page.total }} report(s)</p>
+    <div class="row g-3">
+      @for (item of page.rows; track item.id) {
+        <div class="col-md-6 col-xl-4">
+          <div class="position-relative h-100">
+            <app-item-card [item]="item" />
+            <div class="d-flex flex-wrap gap-1 mt-2">
+              <a class="btn btn-sm btn-outline-primary" [routerLink]="['/items', item.id]">
+                <i class="bi bi-eye me-1"></i>View
+              </a>
+              @if (item.status === 'active' || item.status === 'matched') {
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                  [disabled]="busyId() === item.id" (click)="closeItem(item)">
+                  <i class="bi bi-lock me-1"></i>Close
+                </button>
+              }
+              @if (item.status === 'closed') {
+                <button class="btn btn-sm btn-outline-success" type="button"
+                  [disabled]="busyId() === item.id" (click)="reopenItem(item)">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Reopen
+                </button>
+              }
+              @if (item.status !== 'returned') {
+                <button class="btn btn-sm btn-outline-danger" type="button"
+                  [disabled]="busyId() === item.id" (click)="removeItem(item)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <app-pagination [page]="page.page" [totalPages]="page.totalPages" (pageChange)="changePage($event)" />
+  }
+}

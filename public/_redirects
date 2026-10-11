@@ -1,0 +1,3 @@
+# SPA fallback (belt and braces alongside netlify.toml):
+# any unknown path is served index.html so Angular's router can handle it.
+/*    /index.html   200

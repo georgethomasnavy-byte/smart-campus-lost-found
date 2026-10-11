@@ -1,0 +1,164 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-list-ul me-1"></i>Manage items</h1>
+    <p class="text-muted mb-0">Verify, moderate and clean up campus member reports. Return status is reserved for finder-confirmed physical handover.</p>
+  </div>
+  <a class="btn btn-outline-secondary" routerLink="/admin">Back to dashboard</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-3">
+        <label class="form-label" for="ai-search">Keyword</label>
+        <input id="ai-search" class="form-control" type="search" placeholder="title, description, place…"
+          [ngModel]="search()" (ngModelChange)="onSearchInput($event)" />
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label" for="ai-type">Type</label>
+        <select id="ai-type" class="form-select" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+          <option value="">All</option>
+          <option value="lost">Lost</option>
+          <option value="found">Found</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label" for="ai-status">Status</label>
+        <select id="ai-status" class="form-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="">Any</option>
+          <option value="active">Active</option>
+          <option value="matched">Matched</option>
+          <option value="claimed">Claimed</option>
+          <option value="returned">Returned</option>
+          <option value="closed">Closed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <label class="form-label" for="ai-category">Category</label>
+        <select id="ai-category" class="form-select" [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)">
+          <option value="">All categories</option>
+          @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6 col-lg-2">
+        <label class="form-label" for="ai-verification">Verification</label>
+        <select id="ai-verification" class="form-select" [ngModel]="verificationFilter()" (ngModelChange)="verificationFilter.set($event)">
+          <option value="">Any</option>
+          <option value="pending">Pending</option>
+          <option value="verified">Verified</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="button" (click)="applyFilters()">
+          <i class="bi bi-funnel me-1"></i>Apply
+        </button>
+        <button class="btn btn-outline-secondary" type="button" (click)="resetFilters()">
+          <i class="bi bi-x-circle me-1"></i>Reset
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading items…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if ((result()?.total ?? 0) === 0) {
+  <div class="card"><div class="card-body">
+    <app-empty-state icon="bi-inbox" title="No items match these filters"
+      message="Adjust the filters to see other reports." />
+  </div></div>
+} @else if (result(); as page) {
+  <p class="text-muted small">{{ page.total }} report(s) — page {{ page.page }} of {{ page.totalPages }}</p>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Reporter</th>
+          <th scope="col">Type / status</th>
+          <th scope="col">Verification</th>
+          <th scope="col">Date</th>
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of page.rows; track item.id) {
+          <tr>
+            <td style="min-width: 220px">
+              <div class="d-flex gap-2">
+                @if (item.image_url) {
+                  <img [src]="item.image_url" [alt]="item.title" class="rounded"
+                    style="width:44px;height:44px;object-fit:cover" />
+                } @else {
+                  <div class="rounded bg-body-secondary d-flex align-items-center justify-content-center"
+                    style="width:44px;height:44px"><i class="bi bi-image text-muted"></i></div>
+                }
+                <div>
+                  <a class="fw-semibold text-decoration-none" [routerLink]="['/items', item.id]">{{ item.title }}</a>
+                  <div class="small text-muted">{{ item.category }} · {{ item.location }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="small">{{ item.reporter?.full_name ?? '—' }}</td>
+            <td>
+              <app-status-badge [status]="item.type" />
+              <app-status-badge [status]="item.status" />
+            </td>
+            <td><app-status-badge [status]="item.verification_status" /></td>
+            <td class="small text-muted">{{ item.date_occurred | dateLabel }}</td>
+            <td class="text-end" style="min-width: 260px">
+              <div class="d-flex flex-wrap gap-1 justify-content-end">
+                @if (item.verification_status !== 'verified') {
+                  <button class="btn btn-sm btn-success" type="button" [disabled]="busyId() === item.id"
+                    (click)="verify(item, 'verified')" title="Mark as verified">
+                    <i class="bi bi-patch-check"></i>
+                  </button>
+                }
+                @if (item.verification_status !== 'pending') {
+                  <button class="btn btn-sm btn-outline-secondary" type="button" [disabled]="busyId() === item.id"
+                    (click)="verify(item, 'pending')" title="Back to pending">
+                    <i class="bi bi-hourglass-split"></i>
+                  </button>
+                }
+                @if (item.status === 'returned') {
+                  <span class="small text-success" title="Only the finder-confirmed handover operation can set returned">Handover confirmed</span>
+                }
+                @if (item.status !== 'returned' && item.status !== 'closed') {
+                  <button class="btn btn-sm btn-outline-secondary" type="button" [disabled]="busyId() === item.id"
+                    (click)="setStatus(item, 'closed')" title="Close">
+                    <i class="bi bi-lock"></i>
+                  </button>
+                } @else if (item.status === 'closed') {
+                  <button class="btn btn-sm btn-outline-primary" type="button" [disabled]="busyId() === item.id"
+                    (click)="setStatus(item, 'active')" title="Reopen">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                }
+                @if (item.status !== 'rejected' && item.status !== 'returned') {
+                  <button class="btn btn-sm btn-outline-danger" type="button" [disabled]="busyId() === item.id"
+                    (click)="reject(item)" title="Reject (hide)">
+                    <i class="bi bi-slash-circle"></i>
+                  </button>
+                }
+                @if (item.status !== 'returned') {
+                  <button class="btn btn-sm btn-danger" type="button" [disabled]="busyId() === item.id"
+                    (click)="remove(item)" title="Delete permanently">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination [page]="page.page" [totalPages]="page.totalPages" (pageChange)="changePage($event)" />
+}

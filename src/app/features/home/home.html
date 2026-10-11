@@ -1,0 +1,254 @@
+<!-- ============================== HERO ============================== -->
+<section class="hero-campus">
+  <div class="container position-relative">
+    <div class="row align-items-center">
+      <div class="col-lg-6 hero-copy">
+        <span class="hero-eyebrow"><i class="bi bi-mortarboard"></i>A safer, more connected campus</span>
+
+        <h1 class="hero-title">
+          Lost something?<br />
+          Let the campus<br />
+          help you <span class="hero-highlight">find it
+            <svg viewBox="0 0 200 18" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M3 12 C 42 3, 82 16, 120 7 S 176 5, 197 11" />
+            </svg>.
+          </span>
+        </h1>
+
+        <p class="hero-lead">
+          Report lost or found items within the campus and help them reach their rightful owners.
+          A clear, privacy-conscious place for students, faculty and staff — with explainable matching and separately reviewed ownership claims.
+        </p>
+
+        <form class="hero-searchbar" (submit)="$event.preventDefault(); onSearch(term.value)">
+          <label class="visually-hidden" for="hero-search">Search lost and found items</label>
+          <i class="bi bi-search"></i>
+          <input #term id="hero-search" type="search" class="form-control"
+            placeholder="Search by name, colour or place — e.g. “black wallet”" />
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+
+        <div class="hero-popular">
+          <span>Popular searches:</span>
+          @for (term of popularSearches; track term) {
+            <a class="chip" [routerLink]="['/search']" [queryParams]="{ search: term }">{{ term }}</a>
+          }
+        </div>
+
+        <div class="trust-strip mt-4">
+          <span><i class="bi bi-people me-1"></i>Students · faculty · staff</span>
+          <span><i class="bi bi-bullseye me-1"></i>Explainable matching</span>
+          <span><i class="bi bi-shield-lock me-1"></i>Private claim evidence</span>
+        </div>
+      </div>
+
+      <!-- phones and tablets get the illustration as a banner under the copy -->
+      <div class="col-lg-6">
+        <div class="hero-visual">
+          <img src="hero-campus.svg" alt="Students walking past the main campus building" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================== ACTION CARDS ========================== -->
+<section class="container action-cards">
+  <div class="row g-3 g-lg-4">
+    <div class="col-lg-6">
+      <a class="action-card action-card-lost" routerLink="/report-lost">
+        <span class="action-icon"><i class="bi bi-journal-plus"></i></span>
+        <span class="action-title">Report Lost Item</span>
+        <span class="action-text">Can’t find something? Submit the details and let the campus help you.</span>
+        <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+      </a>
+    </div>
+    <div class="col-lg-6">
+      <a class="action-card action-card-found" routerLink="/report-found">
+        <span class="action-icon"><i class="bi bi-box-seam"></i></span>
+        <span class="action-title">Report Found Item</span>
+        <span class="action-text">Found something? Add it here and help return it to its owner.</span>
+        <span class="action-arrow"><i class="bi bi-arrow-right"></i></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= HOW IT WORKS ========================= -->
+<section class="section">
+  <div class="container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">A simple process for everyone</h2>
+    <p class="section-lead">
+      Five weighted signals compare category, item name, description and identifying details, general area, and date.
+      Exact find locations and claim answers stay private and are never used by the matcher. No AI or black box: each score is explainable.
+    </p>
+
+    <ol class="step-flow">
+      <li class="step">
+        <span class="step-num">1</span>
+        <span class="step-icon"><i class="bi bi-journal-plus"></i></span>
+        <span class="step-text"><strong>Report</strong><span>Add item details with a photo.</span></span>
+      </li>
+      <li class="step-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></li>
+
+      <li class="step">
+        <span class="step-num">2</span>
+        <span class="step-icon"><i class="bi bi-search"></i></span>
+        <span class="step-text"><strong>Match</strong><span>The engine scores every opposite report.</span></span>
+      </li>
+      <li class="step-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></li>
+
+      <li class="step">
+        <span class="step-num">3</span>
+        <span class="step-icon"><i class="bi bi-bell"></i></span>
+        <span class="step-text"><strong>Get notified</strong><span>You’re alerted if a match is found.</span></span>
+      </li>
+      <li class="step-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></li>
+
+      <li class="step">
+        <span class="step-num">4</span>
+        <span class="step-icon"><i class="bi bi-people"></i></span>
+        <span class="step-text"><strong>Reunite</strong><span>Admin reviews ownership; finder confirms handover.</span></span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== NOT CONFIGURED YET (dev) ===================== -->
+@if (!supabase.isConfigured) {
+  <div class="container mb-4">
+    <div class="alert alert-warning border-0 shadow-sm">
+      <div class="d-flex gap-3">
+        <i class="bi bi-plug fs-4"></i>
+        <div>
+          <h2 class="h6 mb-1">Finish the Supabase setup (2 minutes)</h2>
+          <p class="mb-1">
+            Open <code>src/environments/environment.ts</code>, paste <code>supabaseUrl</code> and
+            <code>supabaseAnonKey</code> from your own free Supabase project, then apply the SQL files in
+            <code>supabase/migrations/</code>.
+          </p>
+          <p class="mb-0 small"><strong>START-HERE.md</strong> walks through it click by click.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ========================= LIVE NUMBERS ========================= -->
+<section class="section section-tint">
+  <div class="container">
+    <span class="eyebrow">Live from the database</span>
+    <h2 class="section-title">Campus lost &amp; found in numbers</h2>
+    <p class="section-lead mb-4">
+      Nothing here is hard-coded — every figure is aggregated by PostgreSQL the moment this page loads.
+    </p>
+
+    @if (loading()) {
+      <app-loading-spinner label="Loading campus statistics…" />
+    } @else if (error()) {
+      <app-error-state [message]="error()!" (retry)="load()" />
+    } @else if (stats(); as s) {
+      <div class="row g-3">
+        <div class="col-6 col-lg-3">
+          <a class="stat-tile" routerLink="/lost-items">
+            <i class="bi bi-exclamation-circle stat-icon text-danger"></i>
+            <div class="stat-value text-danger">{{ s.active_lost_items }}</div>
+            <div class="stat-label">Active lost items</div>
+          </a>
+        </div>
+        <div class="col-6 col-lg-3">
+          <a class="stat-tile" routerLink="/found-items">
+            <i class="bi bi-hand-thumbs-up stat-icon text-success"></i>
+            <div class="stat-value text-success">{{ s.found_items }}</div>
+            <div class="stat-label">Found items</div>
+          </a>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-tile">
+            <i class="bi bi-bullseye stat-icon text-primary"></i>
+            <div class="stat-value text-primary">{{ s.possible_matches }}</div>
+            <div class="stat-label">Possible matches</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-tile">
+            <i class="bi bi-check2-circle stat-icon text-success"></i>
+            <div class="stat-value text-success">{{ s.recovered_items }}</div>
+            <div class="stat-label">Recovered items</div>
+          </div>
+        </div>
+      </div>
+      <p class="text-muted small mt-3 mb-0">
+        <i class="bi bi-people me-1"></i>{{ s.registered_campus_users }} registered campus member(s) ·
+        {{ s.total_items }} report(s) in the system.
+      </p>
+    }
+  </div>
+</section>
+
+<!-- ======================== RECENT REPORTS ======================== -->
+@if (supabase.isConfigured) {
+  <section class="section">
+    <div class="container">
+      <div class="row g-4 g-lg-5">
+        <div class="col-lg-6">
+          <div class="section-heading">
+            <h2><i class="bi bi-exclamation-circle text-danger me-2"></i>Recently lost</h2>
+            <a class="btn btn-sm btn-outline-primary ms-auto" routerLink="/lost-items">View all</a>
+          </div>
+          @if (recentLost().length) {
+            <div class="row g-3">
+              @for (item of recentLost(); track item.id) {
+                <div class="col-sm-6 col-xl-4"><app-item-card [item]="item" /></div>
+              }
+            </div>
+          } @else {
+            <div class="card"><div class="card-body">
+              <app-empty-state icon="bi-clipboard-check" title="No lost items reported"
+                message="Nothing is missing right now. Long may it last!" />
+            </div></div>
+          }
+        </div>
+
+        <div class="col-lg-6">
+          <div class="section-heading">
+            <h2><i class="bi bi-hand-thumbs-up text-success me-2"></i>Recently found</h2>
+            <a class="btn btn-sm btn-outline-primary ms-auto" routerLink="/found-items">View all</a>
+          </div>
+          @if (recentFound().length) {
+            <div class="row g-3">
+              @for (item of recentFound(); track item.id) {
+                <div class="col-sm-6 col-xl-4"><app-item-card [item]="item" /></div>
+              }
+            </div>
+          } @else {
+            <div class="card"><div class="card-body">
+              <app-empty-state icon="bi-inbox" title="No found items reported"
+                message="Found something? Reporting it takes under a minute." />
+            </div></div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ============================ CLOSING CTA ============================ -->
+<section class="section pt-0">
+  <div class="container">
+    <div class="cta-card">
+      <span class="action-icon"><i class="bi bi-mortarboard"></i></span>
+      <span class="cta-text">
+        <span class="action-title d-block">Everything on campus, one searchable place</span>
+        <span class="action-text d-block">
+          Report it, search it, get notified, claim it — and every action is logged for the Lost &amp; Found desk.
+        </span>
+      </span>
+      <span class="cta-actions">
+        <a class="btn btn-primary" routerLink="/register">Create an account</a>
+        <a class="btn btn-outline-primary" routerLink="/about">How it works</a>
+      </span>
+    </div>
+  </div>
+</section>

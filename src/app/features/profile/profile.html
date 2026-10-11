@@ -1,0 +1,117 @@
+<h1 class="h3 mb-1">My profile</h1>
+<p class="text-muted">Your account details and preferences.</p>
+
+@if (!profile()) {
+  <app-loading-spinner label="Loading your profile…" />
+} @else {
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card mb-4">
+        <div class="card-header"><i class="bi bi-person me-1"></i>Account details</div>
+        <div class="card-body">
+          <form (ngSubmit)="save()" novalidate>
+            <div class="mb-3">
+              <label class="form-label" for="p-name">Full name</label>
+              <input id="p-name" class="form-control" type="text" maxlength="80" [disabled]="saving()"
+                [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="p-email">College e-mail</label>
+              <input id="p-email" class="form-control" type="email" [value]="profile()?.email" disabled readonly />
+              <div class="form-text">
+                The e-mail identifies your account and cannot be changed here. Contact
+                <a [href]="'mailto:' + supportEmail">{{ supportEmail }}</a> if it is wrong.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="p-phone">Phone (optional)</label>
+              <input id="p-phone" class="form-control" type="tel" maxlength="20" [disabled]="saving()"
+                [ngModel]="phone()" (ngModelChange)="phone.set($event)" />
+              <div class="form-text">Visible to administrators only — never shown on public pages.</div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label">Role</label>
+                <div><app-status-badge [status]="auth.isAdmin() ? 'verified' : 'active'" /> {{ roles() }}</div>
+                <div class="form-text">
+                  Campus role and administrator privilege are stored separately and enforced by the database.
+                  Ask an administrator if your campus role is wrong.
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Member since</label>
+                <div>{{ profile()?.created_at | dateLabel }}</div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              @if (saving()) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Saving…
+              } @else {
+                <i class="bi bi-check2 me-1"></i>Save changes
+              }
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><i class="bi bi-shield-lock me-1"></i>Password</div>
+        <div class="card-body">
+          <p class="mb-2">
+            Passwords are managed by Supabase Auth. Sending yourself a reset link is the safest way to change it.
+          </p>
+          <button class="btn btn-outline-primary" type="button" [disabled]="resetting()" (click)="sendPasswordReset()">
+            @if (resetting()) {
+              <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Sending…
+            } @else {
+              <i class="bi bi-envelope-arrow-up me-1"></i>Send password reset link
+            }
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card mb-4">
+        <div class="card-header"><i class="bi bi-graph-up me-1"></i>My activity</div>
+        <div class="card-body">
+          @if (loadingStats()) {
+            <p class="text-muted mb-0">Counting…</p>
+          } @else if (stats(); as s) {
+            <div class="row g-2 text-center">
+              <div class="col-6"><div class="stat-tile"><div class="stat-value">{{ s.lost }}</div><div class="stat-label">Lost reports</div></div></div>
+              <div class="col-6"><div class="stat-tile"><div class="stat-value">{{ s.found }}</div><div class="stat-label">Found reports</div></div></div>
+              <div class="col-6"><div class="stat-tile"><div class="stat-value">{{ s.active }}</div><div class="stat-label">Active</div></div></div>
+              <div class="col-6"><div class="stat-tile"><div class="stat-value">{{ s.returned }}</div><div class="stat-label">Returned</div></div></div>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <a class="btn btn-sm btn-outline-primary" routerLink="/my-reports">My reports</a>
+              <a class="btn btn-sm btn-outline-primary" routerLink="/dashboard">Dashboard</a>
+            </div>
+          } @else {
+            <p class="text-muted mb-0">Statistics are unavailable right now.</p>
+          }
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="bi bi-info-circle me-1"></i>Privacy</div>
+        <div class="card-body small">
+          <ul class="mb-0">
+            <li>Public item pages show only your display name.</li>
+            <li>Your e-mail and phone number are visible to administrators only.</li>
+            <li>You can delete your own reports at any time.</li>
+            @if (collegeDomain()) {
+              <li>Your address must end in <strong>{{ collegeDomain() }}</strong>.</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+}

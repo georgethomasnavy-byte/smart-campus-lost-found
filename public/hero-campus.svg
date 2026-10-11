@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img"
+  aria-label="Illustration of a college campus: the main building with a glass facade, trees, a walkway, lamp posts and students with backpacks">
+  <title>Campus scene : students walking past the main college building</title>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e6f6ef" />
+      <stop offset="100%" stop-color="#fbfefc" />
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffe9a8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ffe9a8" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d6ecfa" />
+      <stop offset="55%" stop-color="#bcdcf0" />
+      <stop offset="100%" stop-color="#a9cee6" />
+    </linearGradient>
+    <linearGradient id="brick" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4795c" />
+      <stop offset="100%" stop-color="#c2654a" />
+    </linearGradient>
+    <linearGradient id="brickLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2a186" />
+      <stop offset="100%" stop-color="#d48f72" />
+    </linearGradient>
+    <linearGradient id="walk" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e6dccb" />
+      <stop offset="50%" stop-color="#f4efe5" />
+      <stop offset="100%" stop-color="#e2d7c4" />
+    </linearGradient>
+    <linearGradient id="lawn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8fd3a6" />
+      <stop offset="100%" stop-color="#6cbf8b" />
+    </linearGradient>
+    <linearGradient id="grassFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#79c795" />
+      <stop offset="100%" stop-color="#5cb27c" />
+    </linearGradient>
+
+    <g id="cloud" opacity="0.96">
+      <ellipse cx="-30" cy="2" rx="32" ry="17" fill="#ffffff" />
+      <ellipse cx="28" cy="4" rx="34" ry="16" fill="#ffffff" />
+      <ellipse cx="0" cy="-8" rx="30" ry="20" fill="#ffffff" />
+      <ellipse cx="8" cy="10" rx="40" ry="13" fill="#f7fcfa" />
+    </g>
+
+    <g id="tree">
+      <ellipse cx="0" cy="4" rx="34" ry="8" fill="#3f8c62" opacity="0.18" />
+      <rect x="-5" y="-34" width="10" height="40" rx="5" fill="#9a6b45" />
+      <circle cx="0" cy="-62" r="30" fill="#4fae76" />
+      <circle cx="-27" cy="-46" r="22" fill="#59b981" />
+      <circle cx="27" cy="-48" r="23" fill="#59b981" />
+      <circle cx="-10" cy="-76" r="22" fill="#63c48b" />
+      <circle cx="14" cy="-72" r="20" fill="#63c48b" />
+      <circle cx="6" cy="-52" r="19" fill="#3f9c68" opacity="0.55" />
+    </g>
+
+    <g id="treeSmall">
+      <ellipse cx="0" cy="4" rx="24" ry="6" fill="#3f8c62" opacity="0.18" />
+      <rect x="-4" y="-22" width="8" height="28" rx="4" fill="#9a6b45" />
+      <circle cx="0" cy="-40" r="21" fill="#4fae76" />
+      <circle cx="-18" cy="-30" r="15" fill="#59b981" />
+      <circle cx="18" cy="-32" r="16" fill="#59b981" />
+      <circle cx="2" cy="-32" r="13" fill="#3f9c68" opacity="0.5" />
+    </g>
+
+    <g id="bush">
+      <ellipse cx="0" cy="2" rx="26" ry="6" fill="#3f8c62" opacity="0.16" />
+      <circle cx="-14" cy="-10" r="15" fill="#54b37d" />
+      <circle cx="12" cy="-12" r="17" fill="#5cbc86" />
+      <circle cx="0" cy="-18" r="14" fill="#66c68f" />
+    </g>
+
+    <g id="lamp">
+      <ellipse cx="0" cy="2" rx="14" ry="4" fill="#3f8c62" opacity="0.18" />
+      <rect x="-3" y="-104" width="7" height="106" rx="3.5" fill="#6f7f8f" />
+      <path d="M-14 -126 q14 -16 28 0 q-6 8 -14 8 q-8 0 -14 -8 Z" fill="#4a5a6a" />
+      <circle cx="0" cy="-115" r="6" fill="#ffe8a3" />
+      <circle cx="0" cy="-115" r="11" fill="#ffe8a3" opacity="0.35" />
+    </g>
+
+    <g id="student">
+      <ellipse cx="0" cy="46" rx="16" ry="5" fill="#2f6b4c" opacity="0.16" />
+      <rect x="-18" y="-8" width="13" height="24" rx="6" fill="#e2703a" />
+      <rect x="-9" y="20" width="8" height="27" rx="4" fill="#2b3a4a" />
+      <rect x="1" y="20" width="8" height="27" rx="4" fill="#35465a" />
+      <path d="M-11 -2 Q0 -10 11 -2 L13 21 Q0 27 -13 21 Z" fill="currentColor" />
+      <path d="M-11 -2 Q0 -10 11 -2 L12 4 Q0 0 -12 4 Z" fill="#ffffff" opacity="0.22" />
+      <circle cx="0" cy="-16" r="9" fill="#f1c9a5" />
+      <path d="M-9 -19 a9 9 0 0 1 18 0 q-9 -6 -18 0 Z" fill="#3a2a22" />
+    </g>
+  </defs>
+
+  <!-- sky -->
+  <rect width="900" height="620" fill="url(#sky)" />
+  <circle cx="792" cy="86" r="150" fill="url(#sunGlow)" opacity="0.8" />
+  <circle cx="792" cy="86" r="34" fill="#ffe4a1" opacity="0.9" />
+
+  <!-- clouds -->
+  <g opacity="0.95">
+    <use href="#cloud" x="150" y="70" />
+    <use href="#cloud" x="430" y="46" transform="scale(0.8)" />
+    <use href="#cloud" x="700" y="140" transform="scale(0.65)" />
+  </g>
+
+  <!-- distant hills -->
+  <path d="M0 320 Q150 268 320 300 Q470 328 620 296 Q760 268 900 300 L900 620 L0 620 Z" fill="#d9f0e2" />
+
+  <!-- far tree line -->
+  <g opacity="0.55">
+    <circle cx="60" cy="300" r="34" fill="#a9dcbe" />
+    <circle cx="120" cy="312" r="26" fill="#b6e2c8" />
+    <circle cx="820" cy="296" r="36" fill="#a9dcbe" />
+    <circle cx="866" cy="312" r="26" fill="#b6e2c8" />
+  </g>
+
+  <!-- lawn -->
+  <path d="M0 356 Q220 336 450 344 Q690 352 900 336 L900 620 L0 620 Z" fill="url(#lawn)" />
+
+  <!-- left wing -->
+  <g>
+    <rect x="112" y="262" width="176" height="132" fill="url(#brickLight)" />
+    <rect x="104" y="252" width="192" height="16" rx="4" fill="#c8856a" />
+    <rect x="128" y="288" width="34" height="30" rx="3" fill="#bfe0f0" />
+    <rect x="176" y="288" width="34" height="30" rx="3" fill="#bfe0f0" />
+    <rect x="224" y="288" width="34" height="30" rx="3" fill="#bfe0f0" />
+    <rect x="128" y="334" width="34" height="34" rx="3" fill="#bfe0f0" />
+    <rect x="224" y="334" width="34" height="34" rx="3" fill="#bfe0f0" />
+    <rect x="170" y="344" width="46" height="50" rx="4" fill="#4a5a6a" />
+    <rect x="170" y="344" width="46" height="50" rx="4" fill="none" stroke="#d8b39c" stroke-width="3" />
+  </g>
+
+  <!-- right wing -->
+  <g>
+    <rect x="612" y="268" width="164" height="126" fill="url(#brickLight)" />
+    <rect x="604" y="258" width="180" height="16" rx="4" fill="#c8856a" />
+    <rect x="628" y="292" width="32" height="28" rx="3" fill="#bfe0f0" />
+    <rect x="674" y="292" width="32" height="28" rx="3" fill="#bfe0f0" />
+    <rect x="720" y="292" width="32" height="28" rx="3" fill="#bfe0f0" />
+    <rect x="628" y="336" width="32" height="32" rx="3" fill="#bfe0f0" />
+    <rect x="720" y="336" width="32" height="32" rx="3" fill="#bfe0f0" />
+  </g>
+
+  <!-- main block -->
+  <g>
+    <ellipse cx="450" cy="392" rx="250" ry="14" fill="#3f7f5e" opacity="0.14" />
+    <rect x="268" y="176" width="364" height="214" fill="url(#brick)" />
+    <rect x="256" y="162" width="388" height="20" rx="5" fill="#b95b41" />
+    <rect x="256" y="182" width="388" height="8" fill="#a94f37" opacity="0.7" />
+
+    <!-- parapet crest -->
+    <circle cx="450" cy="172" r="11" fill="#f4ede3" />
+    <circle cx="450" cy="172" r="5" fill="#12804a" />
+
+    <!-- glass curtain wall -->
+    <rect x="292" y="206" width="316" height="126" rx="6" fill="url(#glass)" />
+    <rect x="292" y="206" width="316" height="126" rx="6" fill="none" stroke="#8fb8d4" stroke-width="3" />
+    <g stroke="#9dc4dc" stroke-width="2" opacity="0.9">
+      <line x1="345" y1="206" x2="345" y2="332" />
+      <line x1="398" y1="206" x2="398" y2="332" />
+      <line x1="451" y1="206" x2="451" y2="332" />
+      <line x1="504" y1="206" x2="504" y2="332" />
+      <line x1="557" y1="206" x2="557" y2="332" />
+      <line x1="292" y1="248" x2="608" y2="248" />
+      <line x1="292" y1="290" x2="608" y2="290" />
+    </g>
+    <path d="M300 330 L400 208 L432 208 L332 330 Z" fill="#ffffff" opacity="0.28" />
+    <path d="M470 330 L570 208 L592 208 L492 330 Z" fill="#ffffff" opacity="0.2" />
+
+    <!-- entrance -->
+    <rect x="404" y="332" width="92" height="58" fill="#b95b41" />
+    <rect x="414" y="342" width="32" height="48" rx="3" fill="#4a5a6a" />
+    <rect x="452" y="342" width="32" height="48" rx="3" fill="#54677a" />
+    <rect x="414" y="342" width="32" height="16" rx="3" fill="#ffffff" opacity="0.18" />
+    <rect x="452" y="342" width="32" height="16" rx="3" fill="#ffffff" opacity="0.18" />
+    <rect x="396" y="330" width="108" height="12" rx="4" fill="#f4ede3" />
+    <rect x="388" y="390" width="124" height="9" rx="4" fill="#e6dccb" />
+    <rect x="380" y="399" width="140" height="9" rx="4" fill="#dccfb8" />
+  </g>
+
+  <!-- walkway -->
+  <path d="M418 408 L482 408 L604 620 L286 620 Z" fill="url(#walk)" />
+  <g stroke="#d3c6b0" stroke-width="2" opacity="0.8">
+    <line x1="424" y1="470" x2="478" y2="470" />
+    <line x1="412" y1="510" x2="492" y2="510" />
+    <line x1="398" y1="556" x2="508" y2="556" />
+    <line x1="380" y1="600" x2="526" y2="600" />
+  </g>
+
+  <!-- trees -->
+  <use href="#tree" x="196" y="452" />
+  <use href="#tree" x="726" y="446" />
+  <use href="#treeSmall" x="96" y="430" />
+  <use href="#treeSmall" x="826" y="440" />
+  <use href="#tree" x="792" y="452" transform="scale(0.85)" />
+  <use href="#bush" x="270" y="424" />
+  <use href="#bush" x="640" y="420" />
+  <use href="#bush" x="660" y="424" transform="scale(0.85)" />
+
+  <!-- lamps -->
+  <use href="#lamp" x="296" y="404" />
+  <use href="#lamp" x="610" y="400" transform="scale(0.94)" />
+
+  <!-- students : smaller near the building, larger towards the viewer -->
+  <g>
+    <use href="#student" x="392" y="452" style="color:#2f8f9d" transform="translate(392 452) scale(0.82) translate(-392 -452)" />
+    <use href="#student" x="472" y="446" style="color:#c6534f" transform="translate(472 446) scale(0.78) translate(-472 -446)" />
+
+    <use href="#student" x="356" y="498" style="color:#f0a83c" transform="translate(356 498) scale(1.05) translate(-356 -498)" />
+    <use href="#student" x="498" y="492" style="color:#2f7d55" transform="translate(498 492) scale(1.0) translate(-498 -492)" />
+
+    <use href="#student" x="400" y="540" style="color:#3f6fb5" transform="translate(400 540) scale(1.2) translate(-400 -540)" />
+    <use href="#student" x="516" y="534" style="color:#8a5fc4" transform="translate(516 534) scale(1.16) translate(-516 -534)" />
+
+    <use href="#student" x="330" y="572" style="color:#12804a" transform="translate(330 572) scale(1.34) translate(-330 -572)" />
+    <use href="#student" x="468" y="580" style="color:#e2703a" transform="translate(468 580) scale(1.38) translate(-468 -580)" />
+    <use href="#student" x="592" y="568" style="color:#2f8f9d" transform="translate(592 568) scale(1.32) translate(-592 -568)" />
+  </g>
+
+  <!-- foreground grass -->
+  <path d="M0 594 Q230 582 470 588 Q700 594 900 582 L900 620 L0 620 Z" fill="url(#grassFront)" opacity="0.95" />
+  <g stroke="#4fa473" stroke-width="3" stroke-linecap="round" opacity="0.65">
+    <path d="M40 606 q6 -20 16 -27" fill="none" />
+    <path d="M64 610 q2 -16 14 -24" fill="none" />
+    <path d="M150 608 q8 -22 20 -27" fill="none" />
+    <path d="M762 604 q6 -20 18 -25" fill="none" />
+    <path d="M794 610 q4 -18 16 -24" fill="none" />
+    <path d="M862 602 q8 -20 20 -24" fill="none" />
+  </g>
+</svg>

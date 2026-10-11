@@ -1,0 +1,114 @@
+<h1 class="h3 mb-1">My claims</h1>
+<p class="text-muted">Track your own private claim details and see the limited public history on items you reported.</p>
+
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <button class="nav-link" [class.active]="tab() === 'mine'" type="button" (click)="tab.set('mine')">
+      Claims I raised <span class="badge text-bg-secondary">{{ mine().length }}</span>
+      @if (pendingCount() > 0) { <span class="badge text-bg-warning">{{ pendingCount() }} need action</span> }
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" [class.active]="tab() === 'received'" type="button" (click)="tab.set('received')">
+      Claims on my items <span class="badge text-bg-secondary">{{ received().length }}</span>
+    </button>
+  </li>
+</ul>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading claims…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (tab() === 'mine') {
+  @if (mine().length === 0) {
+    <div class="card"><div class="card-body">
+      <app-empty-state icon="bi-clipboard-x" title="You have not claimed any item"
+        message="If you recognise one of the found items as yours, open it and submit a private claim."
+        actionLabel="Browse found items" actionLink="/found-items" />
+    </div></div>
+  } @else {
+    <div class="row g-3">
+      @for (claim of mine(); track claim.id) {
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                <div>
+                  <h2 class="h6 mb-1"><a class="text-decoration-none" [routerLink]="['/items', claim.item_id]">{{ claim.item?.title ?? 'Item' }}</a></h2>
+                  <app-status-badge [status]="claim.status" />
+                  @if (claim.item) { <app-status-badge [status]="claim.item.status" /> }
+                </div>
+                <span class="text-muted small text-nowrap">{{ claim.created_at | timeAgo }}</span>
+              </div>
+
+              <h3 class="small fw-semibold">Your private explanation</h3>
+              <p class="small text-muted" style="white-space:pre-wrap">{{ claim.message }}</p>
+              <h3 class="small fw-semibold">Your private location answer</h3>
+              <p class="small text-muted" style="white-space:pre-wrap">{{ claim.lost_location_answer }}</p>
+
+              @if (claim.admin_notes) {
+                <div class="alert alert-light border small mb-2">
+                  <strong>Private administrator note:</strong> {{ claim.admin_notes }}
+                  @if (claim.reviewed_at) { <span class="text-muted">({{ claim.reviewed_at | timeAgo }})</span> }
+                </div>
+              }
+
+              @if (claim.status === 'needs_info') {
+                <div class="alert alert-info small">
+                  More information was requested. Open the item to send your response privately.
+                  <a class="alert-link" [routerLink]="['/items', claim.item_id]">Respond to request</a>
+                </div>
+              }
+              @if (claim.status === 'approved') {
+                <p class="small text-muted"><i class="bi bi-info-circle me-1"></i>Ownership approval is not a handover. The finder must confirm the item was physically given to you.</p>
+              }
+              @if (claim.status === 'pending' || claim.status === 'needs_info') {
+                <button class="btn btn-sm btn-outline-danger" type="button" [disabled]="busyId() === claim.id" (click)="withdraw(claim)">
+                  <i class="bi bi-x-circle me-1"></i>Withdraw claim
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+} @else {
+  @if (received().length === 0) {
+    <div class="card"><div class="card-body">
+      <app-empty-state icon="bi-inbox" title="No claims on your found items"
+        message="When someone submits a claim on one of your found reports, their public name, role, date and status appear here. Private explanations, contact details and evidence remain hidden."
+        actionLabel="View my reports" actionLink="/my-reports" />
+    </div></div>
+  } @else {
+    <div class="alert alert-info small"><i class="bi bi-shield-lock me-1"></i>This view intentionally contains only public claim-history fields. Use the item page to see public collection instructions and, after an administrator approves a claim, confirm physical handover.</div>
+    <div class="row g-3">
+      @for (claim of received(); track claim.id) {
+        <div class="col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                <div>
+                  <h2 class="h6 mb-1"><a class="text-decoration-none" [routerLink]="['/items', claim.item_id]">{{ claim.item?.title ?? 'Item' }}</a></h2>
+                  <app-status-badge [status]="claim.status" />
+                </div>
+                <span class="small text-muted">Claimed {{ claim.claim_date | timeAgo }}</span>
+              </div>
+              <p class="small mb-1"><i class="bi bi-person me-1"></i><strong>{{ claim.claimant_name }}</strong> <span class="badge text-bg-light border text-capitalize ms-1">{{ claim.campus_role }}</span></p>
+              @if (claim.item?.collection_instructions) {
+                <p class="small mb-1"><strong>Public collection instructions:</strong> {{ claim.item?.collection_instructions }}</p>
+              }
+              @if (claim.status === 'pending') {
+                <p class="small text-muted mb-0">Awaiting administrator ownership review. Do not treat the claim as proof of ownership.</p>
+              } @else if (claim.status === 'approved') {
+                <p class="small text-muted mb-0">Ownership approved. Confirm handover only after physically giving the item to the approved claimant.</p>
+              } @else if (claim.status === 'needs_info') {
+                <p class="small text-muted mb-0">The claimant has been asked privately for more information.</p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}

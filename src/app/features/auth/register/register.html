@@ -1,0 +1,152 @@
+<div class="row justify-content-center">
+  <div class="col-md-10 col-lg-7">
+    <div class="card auth-card shadow-sm">
+      <div class="card-body p-4">
+
+        @if (needsConfirmation()) {
+          <div class="text-center py-3">
+            <i class="bi bi-envelope-check fs-1 text-success"></i>
+            <h1 class="h4 mt-3">Confirm your e-mail</h1>
+            <p class="text-muted">
+              We sent a confirmation link to <strong>{{ email() }}</strong>. Open it, then come back
+              and log in. (Check your spam folder if you cannot find it.)
+            </p>
+            <a class="btn btn-primary" routerLink="/login">Go to login</a>
+          </div>
+        } @else {
+          <div class="text-center mb-4">
+            <i class="bi bi-person-plus fs-1 text-primary"></i>
+            <h1 class="h4 mt-2 mb-1">Create your campus account</h1>
+            <p class="text-muted mb-0">
+              @if (domainRequired()) {
+                Free for campus members · your e-mail must end with <code>{{ domainHint() }}</code>
+              } @else {
+                Free for campus members · any e-mail address is accepted right now
+              }
+            </p>
+          </div>
+
+          @if (!supabase.isConfigured) {
+            <div class="alert alert-warning small mb-3">
+              Supabase keys are missing — see <code>src/environments/environment.ts</code>.
+            </div>
+          }
+
+          @if (error()) {
+            <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i><span>{{ error() }}</span>
+            </div>
+          }
+
+          <form (ngSubmit)="submit()" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="reg-name">Full name <span class="text-danger">*</span></label>
+                <input id="reg-name" name="fullName" type="text" class="form-control" autocomplete="name"
+                  placeholder="e.g. George Thomas" required [disabled]="busy()"
+                  [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="reg-role">Campus role <span class="text-danger">*</span></label>
+                <select id="reg-role" name="campusRole" class="form-select" required [disabled]="busy()"
+                  [ngModel]="campusRole()" (ngModelChange)="campusRole.set($event)">
+                  <option value="student">Student</option>
+                  <option value="faculty">Faculty member</option>
+                  <option value="staff">College staff</option>
+                </select>
+                <div class="form-text">Administrator access is assigned separately by an existing administrator.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="reg-email">College e-mail <span class="text-danger">*</span></label>
+                <input id="reg-email" name="email" type="email" class="form-control" autocomplete="email"
+                  [placeholder]="domainRequired() ? 'you' + domainHint() : 'you@example.com'" required
+                  [disabled]="busy()" [ngModel]="email()" (ngModelChange)="email.set($event)" />
+                @if (email() && !emailLooksValid()) {
+                  <div class="form-text text-danger">Must end with {{ domainHint() }}</div>
+                } @else if (email() && emailLooksValid()) {
+                  <div class="form-text text-success"><i class="bi bi-check2"></i> College address accepted</div>
+                }
+              </div>
+
+              <div class="col-md-6 offset-md-0">
+                <label class="form-label" for="reg-phone">Phone (optional)</label>
+                <input id="reg-phone" name="phone" type="tel" class="form-control" autocomplete="tel"
+                  placeholder="+91…" [disabled]="busy()"
+                  [ngModel]="phone()" (ngModelChange)="phone.set($event)" />
+                <div class="form-text">Visible only to administrators.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="reg-password">Password <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input id="reg-password" name="password" [type]="showPassword() ? 'text' : 'password'"
+                    class="form-control" autocomplete="new-password" required [disabled]="busy()"
+                    [ngModel]="password()" (ngModelChange)="password.set($event)" />
+                  <button class="btn btn-outline-secondary" type="button" (click)="showPassword.set(!showPassword())"
+                    [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                    <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+                  </button>
+                </div>
+                @if (password()) {
+                  <div class="mt-2">
+                    <div class="progress" style="height: 6px" role="img"
+                      [attr.aria-label]="'Password strength: ' + passwordStrengthLabel()">
+                      <div class="progress-bar" [class]="passwordStrengthClass()"
+                        [style.width.%]="(passwordStrength() + 1) * 20"></div>
+                    </div>
+                    <div class="form-text">{{ passwordStrengthLabel() }} · at least 8 characters, letters and numbers</div>
+                  </div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="reg-confirm">Confirm password <span class="text-danger">*</span></label>
+                <input id="reg-confirm" name="confirmPassword" [type]="showPassword() ? 'text' : 'password'"
+                  class="form-control" autocomplete="new-password" required [disabled]="busy()"
+                  [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" />
+                @if (confirmPassword()) {
+                  @if (passwordsMatch()) {
+                    <div class="form-text text-success"><i class="bi bi-check2"></i> Passwords match</div>
+                  } @else {
+                    <div class="form-text text-danger">Passwords do not match</div>
+                  }
+                }
+              </div>
+            </div>
+
+            @if (domainRequired()) {
+              <p class="text-muted small mt-3 mb-0">
+                <i class="bi bi-shield-check me-1"></i>
+                The same rule is enforced by the database (<code>enforce_college_email</code>), so an
+                outside address is refused even if this form is bypassed.
+              </p>
+            }
+
+            <div class="d-grid mt-4">
+              <button class="btn btn-primary btn-lg" type="submit" [disabled]="busy()">
+                @if (busy()) {
+                  <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Creating account…
+                } @else {
+                  <i class="bi bi-person-plus me-1"></i>Create account
+                }
+              </button>
+            </div>
+          </form>
+
+          <hr class="my-4" />
+          <p class="text-center mb-0">
+            Already registered? <a routerLink="/login" class="fw-semibold text-decoration-none">Log in</a>
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="alert alert-light border small mt-3 mb-0">
+      <i class="bi bi-info-circle me-1"></i>
+      Students, faculty and staff can register here. Administrator rights are granted
+      separately by an existing administrator — no registration choice can create an administrator.
+    </div>
+  </div>
+</div>

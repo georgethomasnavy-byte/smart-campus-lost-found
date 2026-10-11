@@ -1,0 +1,106 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-people me-1"></i>Manage users</h1>
+    <p class="text-muted mb-0">
+      {{ rows().length }} account(s): {{ studentCount() }} students, {{ facultyCount() }} faculty,
+      {{ staffCount() }} staff, {{ adminCount() }} administrators.
+    </p>
+  </div>
+  <a class="btn btn-outline-secondary" routerLink="/admin">Back to dashboard</a>
+</div>
+
+<div class="alert alert-light border small">
+  <i class="bi bi-shield-lock me-1"></i>
+  Campus identity (student, faculty or staff) is separate from administrator privileges. Registration cannot create an administrator; role changes run through an audited administrator-only database function. The first administrator must be provisioned by the Supabase project owner outside this app.
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="u-search">Search</label>
+        <input id="u-search" class="form-control" type="search" placeholder="name or e-mail"
+          [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label" for="u-role">Campus role / privilege</label>
+        <select id="u-role" class="form-select" [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event)">
+          <option value="">Everyone</option>
+          <option value="student">Students</option>
+          <option value="faculty">Faculty</option>
+          <option value="staff">Staff</option>
+          <option value="admin">Administrators</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-outline-secondary w-100" type="button" (click)="load()" aria-label="Refresh users">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading users…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (visible().length === 0) {
+  <div class="card"><div class="card-body">
+    <app-empty-state icon="bi-person-x" title="No users match" message="Try a different search term or role." />
+  </div></div>
+} @else {
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Campus role / privilege</th>
+          <th scope="col" class="text-center">Reports</th>
+          <th scope="col" class="text-center">Claims</th>
+          <th scope="col">Joined</th>
+          <th scope="col" class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (profile of visible(); track profile.id) {
+          <tr>
+            <td>{{ profile.full_name }} @if (isSelf(profile)) { <span class="badge text-bg-light text-dark border">you</span> }</td>
+            <td class="small">{{ profile.email }}</td>
+            <td class="small">{{ profile.phone ?? '—' }}</td>
+            <td>
+              @if (profile.role === 'admin') {
+                <app-status-badge status="verified" /> Administrator
+                <div class="small text-muted">Campus role retained: {{ profile.campus_role }}</div>
+              } @else {
+                <app-status-badge status="active" /> {{ profile.campus_role }}
+              }
+            </td>
+            <td class="text-center">{{ activityFor(profile.user_id).items }}</td>
+            <td class="text-center">{{ activityFor(profile.user_id).claims }}</td>
+            <td class="small text-muted">{{ profile.created_at | dateLabel }}</td>
+            <td class="text-end">
+              @if (isSelf(profile)) {
+                <span class="small text-muted">—</span>
+              } @else if (profile.role === 'admin') {
+                <button class="btn btn-sm btn-outline-danger" type="button"
+                  [disabled]="busyId() === profile.user_id || adminCount() <= 1"
+                  [title]="adminCount() <= 1 ? 'The last administrator cannot be demoted.' : ''"
+                  (click)="changeRole(profile, profile.campus_role)">
+                  <i class="bi bi-arrow-down-circle me-1"></i>Restore {{ profile.campus_role }}
+                </button>
+              } @else {
+                <button class="btn btn-sm btn-outline-success" type="button"
+                  [disabled]="busyId() === profile.user_id" (click)="changeRole(profile, 'admin')">
+                  <i class="bi bi-arrow-up-circle me-1"></i>Make admin
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

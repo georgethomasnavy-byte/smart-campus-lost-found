@@ -1,0 +1,96 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-flag me-1"></i>Abuse reports</h1>
+    <p class="text-muted mb-0">Listings that campus members flagged as fraudulent, duplicated or inappropriate.</p>
+  </div>
+  <a class="btn btn-outline-secondary" routerLink="/admin">Back to dashboard</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label" for="ar-status">Show</label>
+        <select id="ar-status" class="form-select" [ngModel]="statusFilter()" (ngModelChange)="changeFilter($event)">
+          <option value="pending">Pending</option>
+          <option value="reviewed">Reviewed</option>
+          <option value="actioned">Actioned</option>
+          <option value="dismissed">Dismissed</option>
+          <option value="">All</option>
+        </select>
+      </div>
+      <div class="col-md-8 text-md-end">
+        <button class="btn btn-outline-secondary" type="button" (click)="load()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading reports…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (rows().length === 0) {
+  <div class="card"><div class="card-body">
+    <app-empty-state icon="bi-flag" title="Nothing in this queue"
+      message="No reports with this status. Flagged listings appear here immediately." />
+  </div></div>
+} @else {
+  <div class="row g-3">
+    @for (report of rows(); track report.id) {
+      <div class="col-lg-6">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+              <div>
+                <h2 class="h6 mb-1">“{{ report.reason }}”</h2>
+                <app-status-badge [status]="report.status" />
+              </div>
+              <span class="text-muted small text-nowrap">{{ report.created_at | timeAgo }}</span>
+            </div>
+
+            <p class="small mb-2">
+              Reported listing:
+              <a class="fw-semibold text-decoration-none" [routerLink]="['/items', report.item_id]">
+                {{ report.item?.title ?? 'item' }}
+              </a>
+              @if (report.item) {
+                <app-status-badge [status]="report.item.type" />
+                <app-status-badge [status]="report.item.status" />
+              }
+            </p>
+
+            <p class="small text-muted mb-2">
+              Reported by {{ report.reporter?.full_name ?? 'a campus member' }}
+            </p>
+
+            @if (report.description) {
+              <p class="small" style="white-space: pre-wrap">{{ report.description }}</p>
+            }
+
+            @if (report.status === 'pending') {
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-success" type="button" [disabled]="busyId() === report.id"
+                  (click)="resolve(report, 'actioned')">
+                  <i class="bi bi-shield-check me-1"></i>Actioned
+                </button>
+                <button class="btn btn-sm btn-outline-primary" type="button" [disabled]="busyId() === report.id"
+                  (click)="resolve(report, 'reviewed')">
+                  <i class="bi bi-eye me-1"></i>Reviewed
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" type="button" [disabled]="busyId() === report.id"
+                  (click)="resolve(report, 'dismissed')">
+                  <i class="bi bi-x-circle me-1"></i>Dismiss
+                </button>
+              </div>
+            } @else if (report.reviewed_at) {
+              <p class="small text-muted mb-0">Resolved {{ report.reviewed_at | timeAgo }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

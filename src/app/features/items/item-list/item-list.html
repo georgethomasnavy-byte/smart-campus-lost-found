@@ -1,0 +1,121 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ title() }}</h1>
+    <p class="text-muted mb-0">{{ lead() }}</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-outline-secondary" type="button" (click)="showFilters.set(!showFilters())"
+      [attr.aria-expanded]="showFilters()" aria-controls="advanced-filters">
+      <i class="bi bi-funnel me-1"></i>Filters
+      @if (activeFilterCount() > 0) { <span class="badge text-bg-primary ms-1">{{ activeFilterCount() }}</span> }
+    </button>
+    <a class="btn btn-primary" [routerLink]="reportLink()"><i class="bi bi-plus-lg me-1"></i>{{ reportLabel() }}</a>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-md">
+        <label class="form-label" for="quick-search">Search campus reports</label>
+        <input id="quick-search" class="form-control" type="search"
+          placeholder="Item, colour, keyword, detail or area…"
+          [ngModel]="searchTerm()" (ngModelChange)="onSearchInput($event)" />
+        <div class="form-text">Searches public titles, descriptions, keywords, identifying details and general locations — never private verification data.</div>
+      </div>
+      <div class="col-md-auto d-grid">
+        <button class="btn btn-primary" type="button" (click)="applyFilters()"><i class="bi bi-search me-1"></i>Search</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ------------------------------- filters ------------------------------- -->
+@if (showFilters()) {
+  <div id="advanced-filters" class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+          <label class="form-label" for="f-category">Category</label>
+          <select id="f-category" class="form-select" [ngModel]="category()" (ngModelChange)="category.set($event)">
+            <option value="">All</option>
+            @for (item of categories; track item) {
+              <option [value]="item">{{ item }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-6 col-lg-2">
+          <label class="form-label" for="f-status">Status</label>
+          <select id="f-status" class="form-select" [ngModel]="status()" (ngModelChange)="status.set($event)">
+            <option value="">Any</option>
+            <option value="active">Active</option>
+            <option value="matched">Matched</option>
+            <option value="claimed">Claimed</option>
+            <option value="returned">Returned</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <label class="form-label" for="f-location">Location</label>
+          <input id="f-location" class="form-control" type="text" placeholder="Library, Canteen, Block A…"
+            [ngModel]="location()" (ngModelChange)="location.set($event)" />
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <label class="form-label" for="f-from">Lost / found after</label>
+          <input id="f-from" class="form-control" type="date" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)" />
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <label class="form-label" for="f-to">…before</label>
+          <input id="f-to" class="form-control" type="date" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)" />
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <label class="form-label" for="f-sort">Sort</label>
+          <select id="f-sort" class="form-select" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button class="btn btn-primary" type="button" (click)="applyFilters()">
+            <i class="bi bi-funnel me-1"></i>Apply filters
+          </button>
+          <button class="btn btn-outline-secondary" type="button" (click)="clearFilters()">
+            <i class="bi bi-x-circle me-1"></i>Clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ------------------------------- results ------------------------------- -->
+@if (state() === 'loading') {
+  <app-loading-spinner label="Searching the database…" />
+} @else if (state() === 'error') {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (isEmpty()) {
+  <div class="card">
+    <div class="card-body">
+      <app-empty-state icon="bi-search" title="No items match your search"
+        message="Try another keyword, widen the dates, or clear the filters. You can also browse the other list (lost or found)."
+        [actionLabel]="reportLabel()" [actionLink]="reportLink()" />
+    </div>
+  </div>
+} @else {
+  <p class="text-muted small">{{ rangeLabel() }}</p>
+  <div class="row g-3">
+    @for (item of result()?.rows ?? []; track item.id) {
+      <div class="col-sm-6 col-lg-4 col-xxl-3">
+        <app-item-card [item]="item" />
+      </div>
+    }
+  </div>
+
+  <app-pagination [page]="page()" [totalPages]="result()?.totalPages ?? 1" (pageChange)="changePage($event)" />
+}

@@ -1,0 +1,263 @@
+<div class="row justify-content-center">
+  <div class="col-lg-9 col-xl-8">
+
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ heading() }}</li>
+      </ol>
+    </nav>
+
+    <h1 class="h3 mb-1">
+      <i class="bi" [class.bi-exclamation-circle]="isLost()" [class.bi-hand-thumbs-up]="!isLost()"
+        [class.text-danger]="isLost()" [class.text-success]="!isLost()"></i>
+      {{ heading() }}
+    </h1>
+    <p class="text-muted">
+      @if (isLost()) {
+        Add clear public details so students, faculty and staff can search for it and the matching rules can compare reports.
+      } @else {
+        Thank you for handing this in. Add public collection instructions and a separate private exact find location for administrator verification.
+      }
+    </p>
+
+    @if (!auth.isLoggedIn()) {
+      <div class="alert alert-warning">
+        <i class="bi bi-lock me-1"></i>
+        You must be logged in to publish a report, so that the item can be linked to your account.
+        <a routerLink="/login" class="alert-link">Log in</a> or
+        <a routerLink="/register" class="alert-link">create an account</a>.
+      </div>
+    }
+
+    <!-- ---------------------------- result card ---------------------------- -->
+    @if (createdItem(); as created) {
+      <div class="card border-success mb-4">
+        <div class="card-header bg-success-subtle">
+          <i class="bi bi-check-circle-fill text-success me-1"></i>Your report is live
+        </div>
+        <div class="card-body">
+          <h2 class="h5">{{ created.title }}</h2>
+          <p class="mb-2">
+            <app-status-badge [status]="created.type" />
+            <app-status-badge [status]="created.status" />
+            <app-status-badge [status]="created.verification_status" />
+          </p>
+
+          @if (matchCount() > 0) {
+            <div class="alert alert-info d-flex flex-wrap align-items-center gap-3">
+              <app-match-score [score]="bestScore()" />
+              <div>
+                <strong>{{ matchCount() }} possible match(es) found.</strong>
+                <br />
+                <span class="small">
+                  @if (notificationCount() > 0) {
+                    In-app notifications were created for {{ notificationCount() }} match(es) scoring at least {{ notificationThreshold }}%. Similarity is a lead, not proof of ownership.
+                  } @else {
+                    These possible matches were saved, but none reached {{ notificationThreshold }}%, so no notification was sent. Similarity is a lead, not proof of ownership.
+                  }
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="alert alert-light border mb-2">
+              No new match was found. Matching runs when reports are created or edited; a database notification is sent when a qualifying match is stored.
+            </div>
+          }
+
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" [routerLink]="['/items', created.id]">View my report</a>
+            @if (matchCount() > 0) {
+              <button class="btn btn-outline-primary" type="button" (click)="goToMatches()">
+                <i class="bi bi-bullseye me-1"></i>See matches
+              </button>
+            }
+            <button class="btn btn-outline-secondary" type="button" (click)="submitAnother()">
+              <i class="bi bi-plus-lg me-1"></i>Report another item
+            </button>
+            <a class="btn btn-link" routerLink="/dashboard">Go to dashboard</a>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ------------------------------- form ------------------------------- -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <form (ngSubmit)="submit()" novalidate [class.opacity-50]="!auth.isLoggedIn()">
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label" for="title">Item name <span class="text-danger">*</span></label>
+              <input id="title" name="title" type="text" class="form-control" maxlength="120" required
+                [placeholder]="isLost() ? 'e.g. Black leather wallet' : 'e.g. Black leather wallet found near library'"
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="title()" (ngModelChange)="title.set($event)" />
+              <div class="form-text">Be specific: colour, brand, type of item.</div>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label" for="category">Category <span class="text-danger">*</span></label>
+              <select id="category" name="category" class="form-select" required
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="category()" (ngModelChange)="category.set($event)">
+                @for (item of categories; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
+              <div class="form-text">Category carries 30% of the match score.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="location">
+                {{ isLost() ? 'General area where you lost it (public)' : 'General area where you found it (public)' }}
+                <span class="text-danger">*</span>
+              </label>
+              <input id="location" name="location" type="text" class="form-control" maxlength="120" required
+                placeholder="e.g. Central Library or the east courtyard — keep the exact spot private"
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="location()" (ngModelChange)="location.set($event)" />
+            </div>
+
+            @if (!isLost()) {
+              <div class="col-md-6">
+                <label class="form-label" for="collection-instructions">Where and how can the owner collect it? <span class="text-danger">*</span></label>
+                <textarea id="collection-instructions" name="collectionInstructions" class="form-control" rows="2" maxlength="500" required
+                  placeholder="Collect from the college library reception between 10 AM and 4 PM."
+                  [disabled]="busy() || !auth.isLoggedIn()"
+                  [ngModel]="collectionInstructions()" (ngModelChange)="collectionInstructions.set($event)"></textarea>
+                <div class="form-text">Public instructions shown on the item details page (10–500 characters).</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="exact-found-location">Exact location where you found it <span class="text-danger">*</span></label>
+                <input id="exact-found-location" name="exactFoundLocation" type="text" class="form-control" maxlength="300" required
+                  placeholder="e.g. Under the third table by the south library window"
+                  [disabled]="busy() || !auth.isLoggedIn()"
+                  [ngModel]="exactFoundLocation()" (ngModelChange)="exactFoundLocation.set($event)" />
+                <div class="form-text text-success"><i class="bi bi-lock-fill me-1"></i>Private: only you and authorized administrators can access it. It is excluded from search and public details.</div>
+              </div>
+            }
+
+            <div class="col-md-6">
+              <label class="form-label" for="date">
+                {{ isLost() ? 'Date you lost it' : 'Date you found it' }}
+                <span class="text-danger">*</span>
+              </label>
+              <input id="date" name="date" type="date" class="form-control" required [max]="today"
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="dateOccurred()" (ngModelChange)="dateOccurred.set($event)" />
+              <div class="form-text">A date close to the other report scores higher.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="keywords">Search keywords (optional)</label>
+              <input id="keywords" name="keywords" type="text" class="form-control" maxlength="250"
+                placeholder="e.g. navy, Casio, student ID"
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="keywords()" (ngModelChange)="keywords.set($event)" />
+              <div class="form-text">Comma-separated words help case-insensitive partial search.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label" for="characteristics">Identifying characteristics (optional)</label>
+              <input id="characteristics" name="identifyingCharacteristics" type="text" class="form-control" maxlength="500"
+                placeholder="e.g. chipped corner, crescent-moon sticker"
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="identifyingCharacteristics()" (ngModelChange)="identifyingCharacteristics.set($event)" />
+              <div class="form-text">Useful public clues used by search and rule-based matching.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" for="description">Description <span class="text-danger">*</span></label>
+              <textarea id="description" name="description" class="form-control" rows="4" maxlength="2000" required
+                placeholder="Marks, contents, colour, condition, stickers, engraving… anything that identifies the item."
+                [disabled]="busy() || !auth.isLoggedIn()"
+                [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
+              <div class="form-text d-flex justify-content-between">
+                <span>10–2000 characters. Do not put passwords or private ownership proof in public fields.</span>
+                <span>{{ description().length }}/2000</span>
+              </div>
+            </div>
+
+            <!-- -------------------------- photo -------------------------- -->
+            <div class="col-12">
+              <label class="form-label" for="photo">Photo (optional)</label>
+              <div class="row g-3 align-items-center">
+                <div class="col-md-7">
+                  <input id="photo" name="photo" class="form-control" type="file" accept="image/jpeg,image/png,image/webp"
+                    [disabled]="busy() || !auth.isLoggedIn()" (change)="onFileSelected($event)" />
+                  <div class="form-text">
+                    {{ allowedTypes() }} · up to {{ formatBytes(maxBytes) }}. Photos make identification much faster.
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  @if (imagePreview()) {
+                    <div class="position-relative d-inline-block">
+                      <img [src]="imagePreview()" alt="Selected photo preview" class="rounded border"
+                        style="max-height:140px;max-width:100%" />
+                      <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                        (click)="clearImage()" aria-label="Remove photo">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="border rounded d-flex align-items-center justify-content-center text-muted"
+                      style="height:110px">
+                      <span class="small">No photo selected</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid d-md-flex gap-2 mt-4">
+            <button class="btn btn-lg"
+              [class.btn-danger]="isLost()" [class.btn-success]="!isLost()"
+              type="submit" [disabled]="busy() || !auth.isLoggedIn()">
+              @if (busy()) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Publishing…
+              } @else {
+                <i class="bi bi-cloud-arrow-up me-1"></i>Publish report
+              }
+            </button>
+            <a class="btn btn-lg btn-outline-secondary" [routerLink]="isLost() ? '/lost-items' : '/found-items'">
+              Cancel
+            </a>
+          </div>
+
+          @if (!canSubmit() && auth.isLoggedIn() && !busy()) {
+            <p class="text-muted small mt-2 mb-0">
+              Required before publishing: item name, description and general location. Found reports also require public collection instructions and a private exact find location.
+            </p>
+          }
+        </form>
+      </div>
+    </div>
+
+    <!-- --------------------------- pipeline log --------------------------- -->
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-diagram-2 me-1"></i>What happens when you press publish
+      </div>
+      <div class="card-body">
+        <ol class="list-unstyled mb-0 small">
+          @for (step of steps(); track step.label; let index = $index) {
+            <li class="d-flex align-items-start gap-2 py-1">
+              <i class="bi {{ stepIcon(step.state) }}"
+                [class.spin]="step.state === 'running'"></i>
+              <span>
+                <strong class="fw-normal">{{ index + 1 }}. {{ step.label }}</strong>
+                @if (step.detail) {
+                  <span class="text-muted"> — {{ step.detail }}</span>
+                }
+              </span>
+            </li>
+          }
+        </ol>
+        <p class="text-muted small mb-0 mt-2">
+          The report and private verification location are saved in one database transaction. When matching succeeds, match rows, persistent notifications and audit entries are written by database triggers. A matching failure does not lose the report and is shown above.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

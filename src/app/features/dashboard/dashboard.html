@@ -1,0 +1,164 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Hello, {{ firstName() }}</h1>
+    <p class="text-muted mb-0">Your lost &amp; found activity at a glance.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-danger" routerLink="/report-lost"><i class="bi bi-exclamation-circle me-1"></i>Report lost</a>
+    <a class="btn btn-success" routerLink="/report-found"><i class="bi bi-hand-thumbs-up me-1"></i>Report found</a>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading your dashboard…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="refresh()" />
+} @else {
+  <!-- ------------------------------ tiles ------------------------------ -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <a class="stat-tile d-block text-decoration-none" routerLink="/my-reports">
+        <div class="stat-value text-danger">{{ stats()?.lost ?? 0 }}</div>
+        <div class="stat-label">Lost reports</div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a class="stat-tile d-block text-decoration-none" routerLink="/my-reports">
+        <div class="stat-value text-success">{{ stats()?.found ?? 0 }}</div>
+        <div class="stat-label">Found reports</div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a class="stat-tile d-block text-decoration-none" routerLink="/matches">
+        <div class="stat-value text-primary">{{ myMatches().length }}</div>
+        <div class="stat-label">Possible matches ({{ strongMatches() }} strong)</div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a class="stat-tile d-block text-decoration-none" routerLink="/my-claims">
+        <div class="stat-value text-warning">{{ pendingClaims() }}</div>
+        <div class="stat-label">Claims awaiting review</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- --------------------------- my items --------------------------- -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-journal-text me-1"></i>My latest reports</span>
+          <a class="btn btn-sm btn-outline-secondary" routerLink="/my-reports">All reports</a>
+        </div>
+        <div class="card-body">
+          @if (myItems().length === 0) {
+            <app-empty-state icon="bi-journal-plus" title="No reports yet"
+              message="Start by reporting something you lost, or something you found."
+              actionLabel="Report a lost item" actionLink="/report-lost" />
+          } @else {
+            <div class="row g-3">
+              @for (item of myItems(); track item.id) {
+                <div class="col-sm-6 col-xl-4">
+                  <app-item-card [item]="item" />
+                  <p class="small text-muted mt-1 mb-0">
+                    <i class="bi bi-bullseye me-1"></i>{{ matchesFor(item.id) }} match(es)
+                  </p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- --------------------------- matches --------------------------- -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-bullseye me-1"></i>Possible matches for my items</span>
+          <a class="btn btn-sm btn-outline-secondary" routerLink="/matches">Review all</a>
+        </div>
+        <div class="card-body">
+          @if (myMatches().length === 0) {
+            <app-empty-state icon="bi-search" title="No matches yet"
+              message="Whenever another campus member reports the opposite side of one of your items, it appears here — and you get a notification." />
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (match of myMatches().slice(0, 5); track match.id) {
+                <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                  <div>
+                    <a class="fw-semibold text-decoration-none" [routerLink]="['/items', otherItem(match)?.id]">
+                      {{ otherItem(match)?.title ?? 'Item' }}
+                    </a>
+                    <div class="small text-muted">
+                      <app-status-badge [status]="otherItem(match)?.type ?? 'lost'" />
+                      {{ otherItem(match)?.location }} ·
+                      <app-status-badge [status]="match.status" />
+                    </div>
+                  </div>
+                  <app-match-score [score]="match.score" [compact]="true" />
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------------------- sidebar ---------------------------- -->
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-bell me-1"></i>Notifications</span>
+          @if (notifications.unread() > 0) {
+            <span class="badge text-bg-danger">{{ notifications.unread() }} unread</span>
+          }
+        </div>
+        <div class="card-body">
+          @if (latestNotifications().length === 0) {
+            <p class="text-muted mb-0 small">No notifications yet.</p>
+          } @else {
+            <ul class="list-unstyled mb-0">
+              @for (note of latestNotifications(); track note.id) {
+                <li class="py-2 border-bottom" [class.notification-unread]="!note.is_read">
+                  <div class="d-flex justify-content-between gap-2">
+                    <strong class="small">{{ note.title }}</strong>
+                    <span class="text-muted small text-nowrap">{{ note.created_at | timeAgo }}</span>
+                  </div>
+                  <p class="small text-muted mb-1">{{ note.message }}</p>
+                  @if (note.related_item_id) {
+                    <a class="small" [routerLink]="['/items', note.related_item_id]">Open item</a>
+                  }
+                </li>
+              }
+            </ul>
+          }
+          <a class="btn btn-sm btn-outline-primary mt-3" routerLink="/notifications">Open notifications</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="bi bi-clipboard-check me-1"></i>My claims</div>
+        <div class="card-body">
+          @if (myClaims().length === 0) {
+            <p class="text-muted small mb-0">
+              You have not claimed any item. Browse the
+              <a routerLink="/found-items">found items</a> list.
+            </p>
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (claim of myClaims().slice(0, 5); track claim.id) {
+                <li class="list-group-item px-0">
+                  <a class="text-decoration-none" [routerLink]="['/items', claim.item_id]">
+                    {{ claim.item?.title ?? 'Item' }}
+                  </a>
+                  <app-status-badge [status]="claim.status" />
+                  <div class="small text-muted">{{ claim.created_at | timeAgo }}</div>
+                </li>
+              }
+            </ul>
+            <a class="btn btn-sm btn-outline-primary mt-3" routerLink="/my-claims">All my claims</a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

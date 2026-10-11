@@ -1,0 +1,43 @@
+# ============================================================================
+#  Git hygiene (spec §40) — secrets and generated output stay out of the repo
+# ============================================================================
+
+# --- secrets / local environment -------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+supabase/.env
+supabase/.branches
+supabase/.temp
+
+# --- build output -----------------------------------------------------------
+/dist
+/out-tsc
+/bazel-out
+/tmp
+/coverage
+.angular/cache
+.angular/
+
+# --- dependencies -----------------------------------------------------------
+/node_modules
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- editor / OS ------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- tooling ----------------------------------------------------------------
+*.tsbuildinfo
+.eslintcache
+/test-results
+/playwright-report

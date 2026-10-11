@@ -1,0 +1,96 @@
+<div class="row g-4">
+  <div class="col-lg-8">
+    <h1 class="h3 mb-3">About {{ appName }}</h1>
+    <p class="lead">
+      A campus-wide lost-and-found system that replaces notice boards, messaging groups and word of
+      mouth with one searchable, secure and accountable platform.
+    </p>
+
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-diagram-3 me-2"></i>How a report travels</div>
+      <div class="card-body">
+        <div class="row g-3">
+          @for (step of steps; track step.title; let index = $index) {
+            <div class="col-md-6">
+              <div class="d-flex gap-3">
+                <div class="flex-shrink-0">
+                  <span class="badge rounded-circle text-bg-primary">{{ index + 1 }}</span>
+                </div>
+                <div>
+                  <h2 class="h6 mb-1"><i class="bi {{ step.icon }} me-1"></i>{{ step.title }}</h2>
+                  <p class="text-muted mb-0 small">{{ step.text }}</p>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-cpu me-2"></i>The matching algorithm (not AI)</div>
+      <div class="card-body">
+        <p>
+          Matching is <strong>deterministic and rule-based</strong>: no machine learning, no model, no
+          external service. Five weighted signals produce a score out of 100.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr><th scope="col">Signal</th><th scope="col" class="text-end">Weight</th><th scope="col">What it compares</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Category</td><td class="text-end">{{ weights.category }}</td><td>Identical category, or a related one (wallet ↔ bag)</td></tr>
+              <tr><td>Item name</td><td class="text-end">{{ weights.title }}</td><td>Word overlap, plus a bonus when one name contains the other</td></tr>
+              <tr><td>Description</td><td class="text-end">{{ weights.description }}</td><td>Shared identifying detail words</td></tr>
+              <tr><td>Location</td><td class="text-end">{{ weights.location }}</td><td>Same place, or a place name contained in the other</td></tr>
+              <tr><td>Date</td><td class="text-end">{{ weights.date }}</td><td>How many days apart the loss and the find happened</td></tr>
+              <tr class="fw-bold"><td>Total</td><td class="text-end">100</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mb-2">Only <strong>lost → found</strong> pairs are ever compared. Scores are interpreted as:</p>
+        <ul class="mb-0">
+          @for (band of levels; track band.level) {
+            <li>
+              <strong>{{ band.min }}–{{ band.max }}</strong>: {{ band.label }}
+              <span class="text-muted small">— {{ band.hint }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-shield-lock me-2"></i>Security and privacy</div>
+      <div class="card-body">
+        <ul class="mb-0">
+          
+          @if (collegeDomain(); as domain) {
+            <li>
+              Registration is restricted to <strong>{{ domain }}</strong> e-mail addresses — the rule is
+              enforced by a database trigger, not only by the form.
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header">Get started</div>
+      <div class="card-body d-grid gap-2">
+        <a class="btn btn-primary" routerLink="/register"><i class="bi bi-person-plus me-1"></i>Create an account</a>
+        <a class="btn btn-outline-danger" routerLink="/report-lost"><i class="bi bi-exclamation-circle me-1"></i>Report a lost item</a>
+        <a class="btn btn-outline-success" routerLink="/report-found"><i class="bi bi-hand-thumbs-up me-1"></i>Report a found item</a>
+        <a class="btn btn-outline-secondary" routerLink="/found-items"><i class="bi bi-search me-1"></i>Browse items</a>
+      </div>
+    </div>
+
+    <div class="card">
+     
+      
+    </div>
+  </div>
+</div>

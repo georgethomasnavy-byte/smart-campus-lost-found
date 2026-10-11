@@ -1,0 +1,93 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-journal-text me-1"></i>Activity logs</h1>
+    <p class="text-muted mb-0">
+      Append-only audit trail. Nobody — not even an administrator — can edit or delete an entry.
+    </p>
+  </div>
+  <a class="btn btn-outline-secondary" routerLink="/admin">Back to dashboard</a>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label" for="al-action">Action</label>
+        <select id="al-action" class="form-select" [ngModel]="actionFilter()" (ngModelChange)="actionFilter.set($event)">
+          <option value="">All actions</option>
+          @for (action of actions(); track action) {
+            <option [value]="action">{{ action }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="al-entity">Entity</label>
+        <select id="al-entity" class="form-select" [ngModel]="entityFilter()" (ngModelChange)="entityFilter.set($event)">
+          <option value="">All entities</option>
+          <option value="item">item</option>
+          <option value="claim">claim</option>
+          <option value="match">match</option>
+          <option value="profile">profile</option>
+          <option value="report">report</option>
+          <option value="auth">auth</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label" for="al-limit">Entries</label>
+        <select id="al-limit" class="form-select" [ngModel]="limit()" (ngModelChange)="limit.set(+$event)">
+          <option [value]="100">100</option>
+          <option [value]="200">200</option>
+          <option [value]="500">500</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary flex-grow-1" type="button" (click)="load()">
+          <i class="bi bi-funnel me-1"></i>Apply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Loading the audit trail…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (rows().length === 0) {
+  <div class="card"><div class="card-body">
+    <app-empty-state icon="bi-journal" title="No log entries"
+      message="Entries are written automatically by database triggers as soon as campus members start using the platform." />
+  </div></div>
+} @else {
+  <p class="text-muted small">{{ rows().length }} entr(y/ies) shown (newest first).</p>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle bg-white">
+      <thead>
+        <tr>
+          <th scope="col">When</th>
+          <th scope="col">Who</th>
+          <th scope="col">Action</th>
+          <th scope="col">Entity</th>
+          <th scope="col">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td class="small text-muted text-nowrap">{{ row.created_at | timeAgo }}</td>
+            <td class="small">
+              {{ row.user?.full_name ?? 'System' }}
+              @if (row.user?.role === 'admin') { <span class="badge text-bg-dark">admin</span> }
+            </td>
+            <td class="small">
+              <i class="bi {{ iconFor(row.action) }} me-1"></i>
+              <code>{{ row.action }}</code>
+            </td>
+            <td class="small">{{ row.entity_type }}</td>
+            <td class="small text-muted">{{ detailsText(row.details) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

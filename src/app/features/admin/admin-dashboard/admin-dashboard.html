@@ -1,0 +1,213 @@
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1"><i class="bi bi-speedometer2 me-1"></i>Admin dashboard</h1>
+    <p class="text-muted mb-0">Live platform health, computed by PostgreSQL aggregate functions.</p>
+  </div>
+  <button class="btn btn-outline-secondary" type="button" (click)="load()">
+    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+  </button>
+</div>
+
+@if (loading()) {
+  <app-loading-spinner label="Aggregating statistics…" />
+} @else if (error()) {
+  <app-error-state [message]="error() ?? ''" (retry)="load()" />
+} @else if (stats(); as s) {
+  <!-- ---------------------------- key numbers ---------------------------- -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile">
+        <div class="stat-value">{{ s.total_items }}</div>
+        <div class="stat-label">Total reports</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile">
+        <div class="stat-value text-danger">{{ s.total_lost }}</div>
+        <div class="stat-label">Lost reports</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile">
+        <div class="stat-value text-success">{{ s.total_found }}</div>
+        <div class="stat-label">Found reports</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile">
+        <div class="stat-value text-success">{{ s.recovered_items }}</div>
+        <div class="stat-label">Returned to owners</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-2">
+      <div class="stat-tile">
+        <div class="stat-value text-warning">{{ s.pending_verification }}</div>
+        <div class="stat-label">Awaiting verification</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <div class="stat-tile">
+        <div class="stat-value text-primary">{{ s.pending_claims }}</div>
+        <div class="stat-label">Pending claims</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <div class="stat-tile">
+        <div class="stat-value text-danger">{{ s.open_abuse_reports }}</div>
+        <div class="stat-label">Open abuse reports</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <div class="stat-tile">
+        <div class="stat-value text-primary">{{ s.possible_matches }}</div>
+        <div class="stat-label">Matches ({{ s.strong_matches }} strong)</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <div class="stat-tile">
+        <div class="stat-value">{{ s.total_students }}</div>
+        <div class="stat-label">Students</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <div class="stat-tile">
+        <div class="stat-value">{{ s.recovery_rate }}%</div>
+        <div class="stat-label">Recovery rate</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4" aria-label="Campus account roles">
+    <div class="col-6 col-lg-3"><div class="stat-tile"><div class="stat-value">{{ s.total_campus_users }}</div><div class="stat-label">Campus members</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-tile"><div class="stat-value">{{ s.total_students }}</div><div class="stat-label">Students</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-tile"><div class="stat-value">{{ s.total_faculty }}</div><div class="stat-label">Faculty</div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-tile"><div class="stat-value">{{ s.total_staff }}</div><div class="stat-label">College staff</div></div></div>
+  </div>
+  <p class="text-muted small">Separately protected administrator accounts: {{ s.total_admins }}.</p>
+
+  <div class="row g-4">
+    <!-- --------------------------- action queues --------------------------- -->
+    <div class="col-lg-5">
+      <div class="card mb-4">
+        <div class="card-header"><i class="bi bi-list-check me-1"></i>Needs your attention</div>
+        <div class="list-group list-group-flush">
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            routerLink="/admin/claims">
+            <span><i class="bi bi-clipboard-check me-2"></i>Claims awaiting verification</span>
+            <span class="badge rounded-pill" [class]="s.pending_claims > 0 ? 'text-bg-warning' : 'text-bg-secondary'">
+              {{ s.pending_claims }}
+            </span>
+          </a>
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            routerLink="/admin/items">
+            <span><i class="bi bi-shield-check me-2"></i>Reports awaiting verification</span>
+            <span class="badge rounded-pill" [class]="s.pending_verification > 0 ? 'text-bg-warning' : 'text-bg-secondary'">
+              {{ s.pending_verification }}
+            </span>
+          </a>
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            routerLink="/admin/reports">
+            <span><i class="bi bi-flag me-2"></i>Abuse reports</span>
+            <span class="badge rounded-pill" [class]="s.open_abuse_reports > 0 ? 'text-bg-danger' : 'text-bg-secondary'">
+              {{ s.open_abuse_reports }}
+            </span>
+          </a>
+          <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            routerLink="/admin/logs">
+            <span><i class="bi bi-journal-text me-2"></i>Activity log entries</span>
+            <span class="badge text-bg-light text-dark border">open log</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="bi bi-clipboard-data me-1"></i>Claims breakdown</div>
+        <div class="card-body">
+          @if (claimCounts(); as counts) {
+            <dl class="row mb-0">
+              <dt class="col-7 text-muted fw-normal">Total claims</dt>
+              <dd class="col-5 text-end">{{ counts['total'] }}</dd>
+              <dt class="col-7 text-muted fw-normal">Pending review</dt>
+              <dd class="col-5 text-end">{{ counts['pending'] }}</dd>
+              <dt class="col-7 text-muted fw-normal">Waiting for information</dt>
+              <dd class="col-5 text-end">{{ counts['needs_info'] }}</dd>
+              <dt class="col-7 text-muted fw-normal">Approved</dt>
+              <dd class="col-5 text-end text-success">{{ counts['approved'] }}</dd>
+              <dt class="col-7 text-muted fw-normal">Rejected</dt>
+              <dd class="col-5 text-end text-danger">{{ counts['rejected'] }}</dd>
+              <dt class="col-7 text-muted fw-normal">Cancelled by claimant</dt>
+              <dd class="col-5 text-end">{{ counts['cancelled'] }}</dd>
+            </dl>
+            @if (counts['total'] > 0) {
+              <div class="progress mt-3" style="height: 10px" role="img" aria-label="Claims by outcome">
+                <div class="progress-bar bg-success" [style.width.%]="percent(counts['approved'], counts['total'])"></div>
+                <div class="progress-bar bg-warning" [style.width.%]="percent(counts['pending'], counts['total'])"></div>
+                <div class="progress-bar bg-info" [style.width.%]="percent(counts['needs_info'], counts['total'])"></div>
+                <div class="progress-bar bg-danger" [style.width.%]="percent(counts['rejected'], counts['total'])"></div>
+                <div class="progress-bar bg-secondary" [style.width.%]="percent(counts['cancelled'], counts['total'])"></div>
+              </div>
+              <p class="text-muted small mb-0 mt-2">
+                {{ percent(counts['approved'], counts['total']) }}% of all claims were approved.
+              </p>
+            }
+          } @else {
+            <p class="text-muted mb-0">No claims yet.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- --------------------------- category stats --------------------------- -->
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-bar-chart me-1"></i>Reports by category</div>
+        <div class="card-body">
+          @if (categories().length === 0) {
+            <p class="text-muted mb-0">No reports yet — the chart fills up as campus members publish items.</p>
+          } @else {
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Category</th>
+                  <th scope="col" class="text-end">Lost</th>
+                  <th scope="col" class="text-end">Found</th>
+                  <th scope="col" class="text-end">Returned</th>
+                  <th scope="col" style="width: 32%">Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of categories(); track row.category) {
+                  <tr>
+                    <th scope="row" class="fw-normal">{{ row.category }}</th>
+                    <td class="text-end">{{ row.lost }}</td>
+                    <td class="text-end">{{ row.found }}</td>
+                    <td class="text-end text-success">{{ row.returned }}</td>
+                    <td>
+                      <div class="match-meter">
+                        <span [style.width.%]="barWidth(row.total)"></span>
+                      </div>
+                      <span class="small text-muted">{{ row.total }} report(s)</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header"><i class="bi bi-info-circle me-1"></i>How these numbers are produced</div>
+        <div class="card-body small text-muted">
+          Every figure on this page is computed inside PostgreSQL by
+          <code>admin_stats()</code> and <code>admin_category_stats()</code>. Those functions run with
+          <code>security definer</code> rights but first check <code>is_admin()</code>, so a non-admin campus account calling them
+          directly receives a permission error instead of data.
+        </div>
+      </div>
+    </div>
+  </div>
+}
